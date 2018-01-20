@@ -1,3 +1,14 @@
+import React, { Component } from 'react';
+import { renderToString } from 'react-dom/server';
+
+import configureStore from './app/store/configureStore';
+
+import { Provider } from 'react-redux';
+
+import App from './app/component/App';
+
+let store = configureStore();
+
 module.exports = function(app, yelpClient, database, passport, async, _) {
     const Bars = database.Bars;
     const Users = database.Users;
@@ -85,6 +96,7 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     
     // checking if user is logged in
     app.get('/user', (req, res) => {
+        console.log(req);
         if (req.user === undefined) {
             // The user is not logged in
             res.setHeader('Content-Type', 'application/json');
@@ -152,4 +164,16 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
            
         });
     });
+    
+    app.get('*', (req, res) => {
+        let data = store.getState();
+        const content = renderToString(
+          <Provider store={store}>
+            <App />
+          </Provider>
+        );
+        res.render('index', {title: 'Express', data: JSON.stringify(data), content });
+    });
+    
+    
 };

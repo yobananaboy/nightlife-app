@@ -6,9 +6,6 @@ import SearchResponse from '../container/SearchResponse';
 import { connect } from 'react-redux';
 import { checkUserLoggedIn, makeSearch, userIsAttending } from '../actions/bars'; 
 
-// https://getemoji.com/
-// https://github.com/robinjmurphy/getting-started-with-redux/
-
 const userUrl = '/user';
 
 class App extends Component {

@@ -1,7 +1,0 @@
-const state = {
-    user: String,
-    barSearch: String,
-    barSearchResults: [],
-    barSearchIsLoading: bool,
-    barSearchHasErrored: bool
-}

@@ -1,3 +1,8 @@
+require('babel-register')({
+    presets: ["env", "react", "stage-2", "es2015"],
+    plugins: ["transform-class-properties"]
+});
+
 const http = require('http');
 const path = require('path');
 
@@ -15,7 +20,7 @@ require('./config/passport')(passport);
 
 const server = http.createServer(app);
 
-app.use(express.static(path.resolve(__dirname, 'public')));
+app.use('/public', express.static('public'));
 app.use(bodyParser.json());
 
 app.use(session({
@@ -27,6 +32,9 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.set('views', './views');
+app.set('view engine', 'ejs');
 
 require('./routes')(app, yelpClient, database, passport, async, _);
 
