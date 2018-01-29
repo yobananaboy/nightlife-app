@@ -1,6 +1,6 @@
 # Matt's nightlife app
 
-An app built using React-Redux full stack, powered by the Yelp API.
+An app built using React-Redux full stack, powered by the Yelp API. Uses server-side React rendering.
 
 Lets you search for bars to find the most happening venue and let others know you are going.
 
