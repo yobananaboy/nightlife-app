@@ -53,12 +53,3 @@ typings/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variables file
-.env
-
-# social authentication
-config/auth.js
-
-#Procfile
-Procfile
