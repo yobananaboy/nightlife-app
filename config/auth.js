@@ -1,11 +1,11 @@
-var port = process.env.PORT;
 var facebookUrl = 'https://matts-nightlife-app.herokuapp.com/auth/facebook/callback';
+require('dotenv').config();
 
 module.exports = {
     
     'facebookAuth': {
-        'clientID'          : '1951647031766559',
-        'clientSecret'      : '0474a0a67f46d9d72b4fc854e7a0f3fd',
+        'clientID'          : process.env.FB_CLIENT_ID,
+        'clientSecret'      : process.env.FB_CLIENT_SECRET,
         'callbackUrl'       : facebookUrl
     }
 
