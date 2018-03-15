@@ -24,60 +24,83 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
           location: request.body.lastSearch
         })
             .then(res => {
-            // loop through response, which should be array of businesses
-            var getBarData = (bar, done) => {
-                Bars.findOne({_id: bar.id}, (err, barOnDatabase) => {
-                        let newBar;
-                        if(err) {
-                            console.log(err);
-                            response.setHeader('Content-Type', 'application/json');
-                            response.send(JSON.stringify({error: true}));
-                        } else {
-                          // voters is empty array
-                          let peopleGoing = [];
-                          // unless bar is on database - so voters must have been added
-                          if(barOnDatabase) {
-                            peopleGoing = barOnDatabase.peopleGoing;
-                          }
-                          newBar = {
-                              _id: bar.id,
-                              name: bar.name,
-                              url: bar.url,
-                              rating: bar.rating,
-                              price: bar.price,
-                              location: {
-                                  address1: bar.location.address1,
-                                  city: bar.location.city,
-                                  zip_code: bar.location.zip_code,
-                              },
-                              peopleGoing: peopleGoing,
-                              img: bar.image_url
-                          };
-                        }
-                        return done(null, newBar);
+                /*let barData = res.jsonBody.businesses;
+                
+                let barPromises = barData.map(bar => {
+                    return Bars.findOne({ _id: bar.id });
                 });
-            };
-            
-            async.map(res.jsonBody.businesses, getBarData, (err, bars) => {
-                if(err) console.log(err);
-                // once we have bars, update user on database, if user is logged in
-                if(request.body._id) {
-                    Users.update({_id: request.body._id}, { $set: { _id: request.body._id, lastSearch: request.body.lastSearch }}, {upsert: true}, (err) => {
-                        if(err) {
-                            console.log(err);
-                        }
-                        console.log('updated user');
-                        // send bars data
-                        response.setHeader('Content-Type', 'application/json');
-                        response.send(JSON.stringify(bars));
+                
+                Promise.all(barPromises)
+                    .then(bars => {
+                        bars = bars.map(bar => {
+                            let peopleGoing = [];
+                        });
+                    })''
+                    .catch(err => {
+                        console.log(err);
                     });
-                } else {
-                        // send bars data
-                        response.setHeader('Content-Type', 'application/json');
-                        response.send(JSON.stringify(bars));
-                    }
-                });
-            
+                */
+                
+                Bars.findById('spud')
+                    .then(bar => {
+                        console.log(bar);
+                    })
+                    .catch(err => console.log(err));
+                
+                // loop through response, which should be array of businesses
+                var getBarData = (bar, done) => {
+                    Bars.findOne({_id: bar.id}, (err, barOnDatabase) => {
+                            let newBar;
+                            if(err) {
+                                console.log(err);
+                                response.setHeader('Content-Type', 'application/json');
+                                response.send(JSON.stringify({error: true}));
+                            } else {
+                              // voters is empty array
+                              let peopleGoing = [];
+                              // unless bar is on database - so voters must have been added
+                              if(barOnDatabase) {
+                                peopleGoing = barOnDatabase.peopleGoing;
+                              }
+                              newBar = {
+                                  _id: bar.id,
+                                  name: bar.name,
+                                  url: bar.url,
+                                  rating: bar.rating,
+                                  price: bar.price,
+                                  location: {
+                                      address1: bar.location.address1,
+                                      city: bar.location.city,
+                                      zip_code: bar.location.zip_code,
+                                  },
+                                  peopleGoing,
+                                  img: bar.image_url
+                              };
+                            }
+                            return done(null, newBar);
+                    });
+                };
+                
+                async.map(res.jsonBody.businesses, getBarData, (err, bars) => {
+                    if(err) console.log(err);
+                    // once we have bars, update user on database, if user is logged in
+                    if(request.body._id) {
+                        Users.update({_id: request.body._id}, { $set: { _id: request.body._id, lastSearch: request.body.lastSearch }}, {upsert: true}, (err) => {
+                            if(err) {
+                                console.log(err);
+                            }
+                            console.log('updated user');
+                            // send bars data
+                            response.setHeader('Content-Type', 'application/json');
+                            response.send(JSON.stringify(bars));
+                        });
+                    } else {
+                            // send bars data
+                            response.setHeader('Content-Type', 'application/json');
+                            response.send(JSON.stringify(bars));
+                        }
+                    });
+                
         }).catch(e => {
             console.log(e);
         });

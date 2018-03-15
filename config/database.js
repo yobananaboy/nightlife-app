@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
 require('dotenv').config();
 
 const user = process.env.USERNAME;
