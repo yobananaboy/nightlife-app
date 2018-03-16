@@ -1,10 +1,3 @@
-
-// if user not logged in - user can see who is going, but can't add their name
-// if user logs in - user can then say whether or not they are going
-
-
-// actions
-
 import axios from 'axios';
 import _ from 'underscore';
 
@@ -21,42 +14,13 @@ export const barsHaveErrored = (bool) => {
         hasErrored: bool
   };
 };
-/*
-export const userHasLoggedIn = (user) => {
-    return {
-      type: 'USER_HAS_LOGGED_IN',
-      user,
-    };
-};
 
-export const userHasLoggedOut = () => {
-    return {
-        type: 'USER_HAS_LOGGED_OUT'
-    };
-};
-*/
 export const updateUser = (user) => {
     return {
         type: 'UPDATE_USER',
         user
     };
 };
-/*
-export const userHasSearched = (search) => {
-  return {
-        type: 'USER_HAS_SEARCHED',
-        search
-    };
-};
-*/
-/*
-export const userAttending = (user, bars) => {
-    return {
-        type: 'USER_ATTENDING',
-        user,
-        bars
-    };
-};*/
 
 export const barsFetchDataSuccess = (bars) => {
     return {
@@ -72,7 +36,7 @@ export const checkUserLoggedIn = (url) => {
         axios.get(url)
         .then((res) => {
             // if server responds with user data, dispatch action accordingly, else dispatch user not logged in event
-            res.data ? dispatch(updateUser(res.data)) : dispatch(updateUser({}));
+            res.data.user ? dispatch(updateUser(res.data)) : dispatch(updateUser());
             // make search if user logged in and has previous search
             if(res.data.lastSearch) {
                 dispatch(makeSearch('/getBars', res.data, res.data.lastSearch));
@@ -87,29 +51,6 @@ export const checkUserLoggedIn = (url) => {
     };
 };
 
-/*
-// user logs in for either two reasons
-// - logged in on start up, so load their last search if they have it
-// - logged in to click attending, in which case make action after they are logged in
-export const logInUser = (logInUrl, searchUrl, attendUrl, barId, bars) => {
-    return (dispatch) => {
-        axios.get(logInUrl)
-            .then((res) => {
-                dispatch(userHasLoggedIn(res.data.user));
-                if(res.data.user && searchUrl) {
-                    makeSearch(searchUrl, res.data.user.id, res.data.user.lastSearch);
-                }
-                if(barId && bars) {
-                    userIsAttending(res.data.user.id, barId, bars, attendUrl);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-                dispatch(userHasLoggedOut());
-            });
-    };
-};
-*/
 export const makeSearch = (url, user, search) => {
     return (dispatch) => {
         dispatch(barsAreLoading(true));
@@ -155,10 +96,8 @@ export const userIsAttending = (user, index, barId, bars, url) => {
                     });
                 });
                 
-                
-                //let newBars = bars;
-                //newBars[index].peopleGoing = bar.peopleGoing;
                 dispatch(barsFetchDataSuccess(newBarArr));
+                
             })
             .catch((err) => {
                if(err) {

@@ -32,7 +32,7 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
                     return Bars.findById(bar.id);
                 });
 
-                let bars = Promise.all(barPromises)
+                Promise.all(barPromises)
                     .then(bars => {
                         // once all promises are resolved, map bar data received
                         bars = bars.map((bar, index) => {
@@ -100,17 +100,15 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     // checking if user is logged in
     app.get('/user', (req, res) => {
         if (req.user === undefined) {
-            // The user is not logged in
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify({}));
+            
+            res.send({ user: false });
+            
         } else {
             
-            console.log('loading user');
-            Users.findOne({_id: req.user._id}, function(err, user) {
-               if(err) console.log(err);
-                res.setHeader('Content-Type', 'application/json');
-                res.send(JSON.stringify(user));
-            });
+            Users.findById(req.user._id)
+                .then(user => res.send(user))
+                .catch(err => console.log(err));
+                
         }
     });
     
