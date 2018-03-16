@@ -4,8 +4,8 @@ require('dotenv').config();
 module.exports = {
     
     'facebookAuth': {
-        'clientID'          : process.env.FB_CLIENT_ID,
-        'clientSecret'      : process.env.FB_CLIENT_SECRET,
+        'clientID'          : process.env.FB_CLIENT_ID.toString(),
+        'clientSecret'      : process.env.FB_CLIENT_SECRET.toString(),
         'callbackUrl'       : facebookUrl
     }
 
