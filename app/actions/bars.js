@@ -36,7 +36,7 @@ export const checkUserLoggedIn = (url) => {
         axios.get(url)
         .then((res) => {
             // if server responds with user data, dispatch action accordingly, else dispatch user not logged in event
-            res.data.user ? dispatch(updateUser(res.data)) : dispatch(updateUser());
+            res.data.user ? dispatch(updateUser(res.data)) : dispatch(updateUser({}));
             // make search if user logged in and has previous search
             if(res.data.lastSearch) {
                 dispatch(makeSearch('/getBars', res.data, res.data.lastSearch));
@@ -44,7 +44,6 @@ export const checkUserLoggedIn = (url) => {
         })
         .then((err) => {
             if(err) {
-                console.log(err);
                 dispatch(updateUser({}));
             }
         });
