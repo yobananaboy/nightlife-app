@@ -25,8 +25,7 @@ module.exports = function(passport) {
 
         // asynchronous
         process.nextTick(function() {
-            console.log(profile.photos[0].value);
-            
+
             // find the user in the database based on their facebook id
             Users.findOne({ _id : profile.id }, function(err, user) {
                 // if there is an error, stop everything and return that

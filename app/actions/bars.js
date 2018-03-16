@@ -146,7 +146,6 @@ export const userIsAttending = (user, index, barId, bars, url) => {
             .then((res) => {
                 // once we have a response with the updated bar, update the bars object returned in search
                 let updatedBar = res.data;
-                console.log(updatedBar);
                 let newBarArr = bars.map((bar, ind) => {
                     if(ind !== index) {
                         return bar;

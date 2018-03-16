@@ -35,7 +35,7 @@
     "webpack": "^3.8.1",
     "webpack-chunk-manifest-plugin": "^3.0.2",
     "whatwg-fetch": "^2.0.3",
-    "yelp-fusion": "^1.0.4"
+    "yelp-fusion": "^2.0.3"
   },
   "devDependencies": {
     "babel-loader": "^7.0.0",

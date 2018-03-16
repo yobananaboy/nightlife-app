@@ -12,99 +12,79 @@ let store = configureStore();
 module.exports = function(app, yelpClient, database, passport, async, _) {
     const Bars = database.Bars;
     const Users = database.Users;
-    // client posts search info
     
-    //http://bluebirdjs.com/docs/api/promise.map.html
-    
-    // user searches for bars
-    app.post('/getBars', (request, response) => {
-        // make request to yelp client for users search
+    const getAllBars = (location, req, res) => {
+        
+        // yelp search
         yelpClient.search({
-          categories:'bars,pubs,beerbar,cocktailbars',
-          location: request.body.lastSearch
+            categories:'bars,pubs,beerbar,cocktailbars',
+            location
         })
-            .then(res => {
-                /*let barData = res.jsonBody.businesses;
+            .then(result => {
+                // handle search term with no results
                 
+                // get bar data if loaded okay
+                let barData = result.jsonBody.businesses;
+                
+                // to find bars on database create an array of promises
                 let barPromises = barData.map(bar => {
-                    return Bars.findOne({ _id: bar.id });
+                    // find bar by id
+                    return Bars.findById(bar.id);
                 });
-                
-                Promise.all(barPromises)
+
+                let bars = Promise.all(barPromises)
                     .then(bars => {
-                        bars = bars.map(bar => {
+                        // once all promises are resolved, map bar data received
+                        bars = bars.map((bar, index) => {
+                            // find out who clicked attending
                             let peopleGoing = [];
+                            // if the bar was found on db and it has people going then update
+                            if(bar && bar.peopleGoing) peopleGoing = bar.peopleGoing;
+                            
+                            return {
+                                  _id: barData[index].id,
+                                  name: barData[index].name,
+                                  url: barData[index].url,
+                                  rating: barData[index].rating,
+                                  price: barData[index].price,
+                                  location: {
+                                      address1: barData[index].location.address1,
+                                      city: barData[index].location.city,
+                                      zip_code: barData[index].location.zip_code,
+                                  },
+                                  peopleGoing,
+                                  img: barData[index].image_url
+                            };
                         });
-                    })''
+                        
+                        res.send(bars);
+                        
+                    })
                     .catch(err => {
                         console.log(err);
                     });
-                */
                 
-                Bars.findById('spud')
-                    .then(bar => {
-                        console.log(bar);
-                    })
-                    .catch(err => console.log(err));
-                
-                // loop through response, which should be array of businesses
-                var getBarData = (bar, done) => {
-                    Bars.findOne({_id: bar.id}, (err, barOnDatabase) => {
-                            let newBar;
-                            if(err) {
-                                console.log(err);
-                                response.setHeader('Content-Type', 'application/json');
-                                response.send(JSON.stringify({error: true}));
-                            } else {
-                              // voters is empty array
-                              let peopleGoing = [];
-                              // unless bar is on database - so voters must have been added
-                              if(barOnDatabase) {
-                                peopleGoing = barOnDatabase.peopleGoing;
-                              }
-                              newBar = {
-                                  _id: bar.id,
-                                  name: bar.name,
-                                  url: bar.url,
-                                  rating: bar.rating,
-                                  price: bar.price,
-                                  location: {
-                                      address1: bar.location.address1,
-                                      city: bar.location.city,
-                                      zip_code: bar.location.zip_code,
-                                  },
-                                  peopleGoing,
-                                  img: bar.image_url
-                              };
-                            }
-                            return done(null, newBar);
-                    });
-                };
-                
-                async.map(res.jsonBody.businesses, getBarData, (err, bars) => {
-                    if(err) console.log(err);
-                    // once we have bars, update user on database, if user is logged in
-                    if(request.body._id) {
-                        Users.update({_id: request.body._id}, { $set: { _id: request.body._id, lastSearch: request.body.lastSearch }}, {upsert: true}, (err) => {
-                            if(err) {
-                                console.log(err);
-                            }
-                            console.log('updated user');
-                            // send bars data
-                            response.setHeader('Content-Type', 'application/json');
-                            response.send(JSON.stringify(bars));
-                        });
-                    } else {
-                            // send bars data
-                            response.setHeader('Content-Type', 'application/json');
-                            response.send(JSON.stringify(bars));
-                        }
-                    });
-                
-        }).catch(e => {
-            console.log(e);
-        });
+            })
+            // handle error
+            .catch(err => console.log(err));
+        
+    };
+    
+    
+    // user searches for bars
+    app.post('/getBars', (req, res) => {
+        let search = req.body.lastSearch;
+        
+        getAllBars(search, req, res);
+        
+        if (req.body._id) {
+            Users.update({_id: req.body._id}, { $set: { _id: req.body._id, lastSearch: req.body.lastSearch }}, {upsert: true})
+                .catch(err => console.log(err));
+        }
+
     });
+    
+    
     // Facebook authentication
     app.get('/login', passport.authenticate('facebook', {scope : ['public_profile']}));
     
@@ -119,7 +99,6 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     
     // checking if user is logged in
     app.get('/user', (req, res) => {
-        console.log(req);
         if (req.user === undefined) {
             // The user is not logged in
             res.setHeader('Content-Type', 'application/json');
@@ -127,7 +106,6 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
         } else {
             
             console.log('loading user');
-            console.log(req.user);
             Users.findOne({_id: req.user._id}, function(err, user) {
                if(err) console.log(err);
                 res.setHeader('Content-Type', 'application/json');
@@ -136,56 +114,51 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
         }
     });
     
-    app.post('/userIsAttending', (request, response) => {
-        let barId = request.body.barId;
-        let user = request.body.user;
+    const saveBarAndSendData = (bar, res) => {
+        bar.save()
+            .then(res => res.send(bar))
+            .catch(err => console.log(err));
+    };
+    
+    app.post('/userIsAttending', (req, res) => {
+        let barId = req.body.barId;
+        let user = req.body.user;
         // search for bar user clicked to attend
-        Bars.findOne({_id: barId}, (err, barOnDatabase) => {
-           if(err) console.log(err);
-           // if bar is on databse
-           if(barOnDatabase) {
-               // find out if user is in the array of people going and remove if they are
-               if(_.find(barOnDatabase.peopleGoing, personGoing => {
-                   return personGoing._id === user._id;
-               })) {
-                   let peopleGoing = barOnDatabase.peopleGoing;
-                   // filter array if user clicking attending matches person in people going
-                   peopleGoing = _.filter(peopleGoing, personGoing => {
-                       return personGoing._id !== user._id;
-                   });
-                   barOnDatabase.peopleGoing = peopleGoing;
-                   // save updated bar
-                   barOnDatabase.save((err) => {
-                       if(err) console.log(err);
-                       response.setHeader('Content-Type', 'application/json');
-                       response.send(JSON.stringify(barOnDatabase));
-                   });
-               } else {
-                   // otherwise, user needs to be added to array of people going
-                   let peopleGoing = barOnDatabase.peopleGoing;
-                   // they just need to be pushed
-                   peopleGoing.push(user);
-                   barOnDatabase.peopleGoing = peopleGoing;
-                   // save updated bar
-                   barOnDatabase.save((err) => {
-                       if(err) console.log(err);
-                       response.setHeader('Content-Type', 'application/json');
-                       response.send(JSON.stringify(barOnDatabase));
-                   });
-               }
-           } else {
-               // else if bar is not on database create a new one and add first person going
-               let newBar = new Bars();
-               newBar._id = barId;
-               newBar.peopleGoing = new Array(user);
-               newBar.save((err) => {
-                   if(err) console.log(err);
-                   response.setHeader('Content-Type', 'application/json');
-                   response.send(JSON.stringify(newBar));
-               });
-           }
-           
-        });
+        Bars.findbyID(barId)
+            .then(bar => {
+                // if bar on database
+                if (bar) {
+                    // find out if user is in the array of people going and remove if they are    
+                    // get index
+                    let index = _.find(bar.peopleGoing, personGoing => {
+                        return personGoing._id === user._id;
+                    });
+                    // if not in array, push to array
+                    if(index == -1) {
+                        bar.peopleGoing.push(user);
+                    }
+                    // else splice to remove
+                    else {
+                        bar.peopleGoing.splice(index, 1);
+                    }
+                    
+                    saveBarAndSendData(bar, res);
+                    
+                }
+                // else if bar not on database
+                else {
+                    let bar = new Bars({
+                        _id: barId,
+                        peopleGoing: [user],
+                    });
+                    
+                    saveBarAndSendData(bar, res);
+                    
+                }
+                
+            })
+            .catch(err => console.log(err));
+            
     });
     
     app.get('*', (req, res) => {
