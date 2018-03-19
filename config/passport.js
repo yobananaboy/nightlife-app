@@ -22,39 +22,17 @@ module.exports = function(passport) {
     },
         // facebook will send back the token and profile
     function(token, refreshToken, profile, done) {
-
+        console.log('authenticating');
+        console.log(profile);
         // asynchronous
         process.nextTick(function() {
-
+            /*
             // find the user in the database based on their facebook id
-            Users.findOne({ _id : profile.id }, function(err, user) {
-                // if there is an error, stop everything and return that
-                // ie an error connecting to the database
-                if (err)
-                    return done(err);
-                
-                // if the user is found, then log them in
-                if (user) {
-                    return done(null, user); // user found, return that user
-                } else {
-                    // if there is no user found with that facebook id, create them
-                    let newUser = new Users();
-                    // set all of the facebook information in our user model
-                    newUser._id = profile.id; // set the users facebook id                   
-                    newUser.token = token; // we will save the token that facebook provides to the user                    
-                    newUser.img = profile.photos[0].value; // get profile photo
-                    newUser.lastSearch = '';
-                    // save our user to the database
-                    newUser.save((err) => {
-                        if (err)
-                            throw err;
-
-                        // if successful, return the new user
-                        return done(null, newUser);
-                    });
-                }
-
-            });
+            Users.update({ _id: profile.id }, { _id: profile.id, token, img: profile.photos[0].value }, { upsert: true })
+                .catch(err => done(err))
+                .then(user => done(null, user));
+            */
+            return done(null, profile);
         });
 
     }));

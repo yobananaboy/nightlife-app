@@ -34,31 +34,28 @@ export const checkUserLoggedIn = (url) => {
     return (dispatch) => {
         // check the server for user
         axios.get(url)
-        .then((res) => {
-            // if server responds with user data, dispatch action accordingly, else dispatch user not logged in event
-            res.data.user ? dispatch(updateUser(res.data)) : dispatch(updateUser({}));
-            // make search if user logged in and has previous search
-            if(res.data.lastSearch) {
-                dispatch(makeSearch('/getBars', res.data, res.data.lastSearch));
-            }
-        })
-        .then((err) => {
-            if(err) {
-                dispatch(updateUser({}));
-            }
-        });
+            .then((res) => {
+                // if server responds with user data, dispatch action accordingly, else dispatch user not logged in event
+                res.data ? dispatch(updateUser(res.data)) : dispatch(updateUser(false));
+                // make search if user logged in and has previous search
+                if(res.data.lastSearch) {
+                    dispatch(makeSearch('/getBars', res.data));
+                }
+            })
+            .then((err) => {
+                if(err) {
+                    dispatch(updateUser(false));
+                }
+            });
     };
 };
 
 export const makeSearch = (url, user, search) => {
     return (dispatch) => {
         dispatch(barsAreLoading(true));
-        let data;
-        _.findKey(user, (val, key) => {
-            if(key === '_id') {
-                return true;
-            }
-        }) ? data = { _id: user._id, lastSearch: search } : data = { _id: null, lastSearch: search };
+        
+        let data = user ?  { _id: user._id, lastSearch: search } : { _id: null, lastSearch: search };
+        
         axios.post(url, data)
             .then((res) => {
                 dispatch(barsAreLoading(false));
@@ -77,25 +74,17 @@ export const makeSearch = (url, user, search) => {
 
 export const userIsAttending = (user, index, barId, bars, url) => {
     return (dispatch) => {
-        console.log('attending');
-        var data = {
-          user,
-          barId
-        };
+        
+        let data = { user, barId };
+        
         axios.post(url, data)
             .then((res) => {
                 // once we have a response with the updated bar, update the bars object returned in search
                 let updatedBar = res.data;
-                let newBarArr = bars.map((bar, ind) => {
-                    if(ind !== index) {
-                        return bar;
-                    }
-                    return Object.assign({}, bar, {
-                        peopleGoing: updatedBar.peopleGoing
-                    });
-                });
                 
-                dispatch(barsFetchDataSuccess(newBarArr));
+                bars[index].peopleGoing = updatedBar.peopleGoing;
+                
+                dispatch(barsFetchDataSuccess(bars));
                 
             })
             .catch((err) => {

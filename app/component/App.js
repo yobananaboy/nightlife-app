@@ -10,7 +10,9 @@ const userUrl = '/user';
 
 class App extends Component {
     componentDidMount() {
-        this.props.getUser(userUrl);
+        if(!this.props.user) {
+            this.props.getUser(userUrl);    
+        }
     }
     
     render() {

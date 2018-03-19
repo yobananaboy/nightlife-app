@@ -99,15 +99,29 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     
     // checking if user is logged in
     app.get('/user', (req, res) => {
-        if (req.user === undefined) {
-            
-            res.send({ user: false });
-            
-        } else {
+        
+        if (req.user != undefined) {
             
             Users.findById(req.user._id)
-                .then(user => res.send(user))
-                .catch(err => console.log(err));
+                .then(user => {
+                    if(user) {
+                        res.send(user);
+                    } else {
+                        res.send({
+                            _id: req.user.id,
+                            img: req.user.photos[0].value,
+                            lastSearch: ''
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.send(false);
+                });
+            
+        } else {
+
+            res.send(false);
                 
         }
     });
@@ -122,7 +136,7 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
         let barId = req.body.barId;
         let user = req.body.user;
         // search for bar user clicked to attend
-        Bars.findbyID(barId)
+        Bars.findById(barId)
             .then(bar => {
                 // if bar on database
                 if (bar) {

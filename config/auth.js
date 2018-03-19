@@ -1,4 +1,4 @@
-var facebookUrl = 'https://matts-nightlife-app.herokuapp.com/auth/facebook/callback';
+var facebookUrl = 'https://nighlife-app-server-render-mattkeegan20.c9users.io/auth/facebook/callback';
 require('dotenv').config();
 
 module.exports = {
