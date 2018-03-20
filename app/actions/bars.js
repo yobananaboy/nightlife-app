@@ -28,6 +28,14 @@ export const barsFetchDataSuccess = (bars) => {
     };
 };
 
+export const barUpdated = (bar, id) => {
+    return {
+        type: 'BAR_UPDATED',
+        bar,
+        id
+    };
+};
+
 // check if user has logged in and dispatch action if they are/arent
 export const checkUserLoggedIn = (url) => {
     return (dispatch) => {
@@ -53,24 +61,27 @@ export const makeSearch = (url, user, inputSearch = null) => {
     return (dispatch) => {
         dispatch(barsAreLoading(true));
         
-        let search = user.lastSearch;
+        // if user has just input search, that is the search term to use. Else use their last search
+        let search = inputSearch ? inputSearch : user.lastSearch;
         
-        if (inputSearch) {
-            search = inputSearch;
-        }
-        
+        // Send over user data if user logged in
         let data = user ?  { _id: user._id, lastSearch: search, img: user.img } : { _id: null, lastSearch: search };
 
         axios.post(url, data)
             .then((res) => {
+                
                 dispatch(barsAreLoading(false));
-                let bars = res.data;
-                dispatch(barsFetchDataSuccess(bars));
+                
+                dispatch(barsFetchDataSuccess(res.data));
+                
             })
             .then((err) => {
                 if(err) {
+                    
                     console.log(err);
+                    
                     dispatch(barsAreLoading(false));
+                    
                     dispatch(barsHaveErrored(true));   
                 }
             });
@@ -87,6 +98,9 @@ export const userIsAttending = (user, barId, bars, url) => {
                 // once we have a response with the updated bar, update the bars object returned in search
                 let updatedBar = res.data;
                 
+                dispatch(barUpdated(updatedBar, barId));
+                /*
+                
                 // get index of updated bar
                 let index = bars.findIndex(bar => bar._id == barId);
                 
@@ -94,7 +108,7 @@ export const userIsAttending = (user, barId, bars, url) => {
                 // update people going in the bar
                 newBars[index].peopleGoing = updatedBar.peopleGoing;
                 
-                dispatch(barsFetchDataSuccess(newBars));
+                dispatch(barsFetchDataSuccess(newBars));*/
                 
             })
             .catch((err) => {
