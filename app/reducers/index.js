@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
-import { barsHaveErrored, barsAreLoading, bars, user } from './bars';
+import { barsHaveErrored, barsAreLoading, bars } from './bars';
+import { user } from './user';
 
 export default combineReducers({
    barsHaveErrored,

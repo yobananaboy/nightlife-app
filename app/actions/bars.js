@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { updateUser } from './user';
+
 export const barsAreLoading = (bool) => {
     return {
         type: 'BARS_ARE_LOADING',
@@ -12,13 +14,6 @@ export const barsHaveErrored = (bool) => {
         type: 'BARS_HAVE_ERRORED',
         hasErrored: bool
   };
-};
-
-export const updateUser = (user) => {
-    return {
-        type: 'UPDATE_USER',
-        user
-    };
 };
 
 export const barsFetchDataSuccess = (bars) => {
@@ -99,16 +94,6 @@ export const userIsAttending = (user, barId, bars, url) => {
                 let updatedBar = res.data;
                 
                 dispatch(barUpdated(updatedBar, barId));
-                /*
-                
-                // get index of updated bar
-                let index = bars.findIndex(bar => bar._id == barId);
-                
-                let newBars = bars.slice();
-                // update people going in the bar
-                newBars[index].peopleGoing = updatedBar.peopleGoing;
-                
-                dispatch(barsFetchDataSuccess(newBars));*/
                 
             })
             .catch((err) => {
@@ -118,6 +103,7 @@ export const userIsAttending = (user, barId, bars, url) => {
                  dispatch((barsHaveErrored(true)));   
                  
                }
+               
             });
     };
 };
