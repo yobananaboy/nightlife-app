@@ -13,15 +13,26 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     const Bars = database.Bars;
     const Users = database.Users;
     
+    const sendErrorMsg = (msg, res) => {
+        res.send({
+            err: msg
+        });
+    };
+    
     const getAllBars = (location, req, res) => {
-        
+        console.log('searching');
         // yelp search
         yelpClient.search({
             categories:'bars,pubs,beerbar,cocktailbars',
             location
         })
             .then(result => {
-                // handle search term with no results
+                // error handle lack of results
+                if(!result || result.jsonBody.businesses.length === 0) {
+                    
+                    return sendErrorMsg('Could not find any bars. Please double-check your search and try again.', res);
+                    
+                }
                 
                 // get bar data if loaded okay
                 let barData = result.jsonBody.businesses;
@@ -62,11 +73,17 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
                     })
                     .catch(err => {
                         console.log(err);
+                        
+                        sendErrorMsg('Could not load data. Please try again.', res);
+                        
                     });
                 
             })
             // handle error
-            .catch(err => console.log(err));
+            .catch(err => {
+                console.log(err);
+                sendErrorMsg('Could not load data. Please try again.', res);
+            });
         
     };
     
@@ -129,7 +146,13 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     const saveBarAndSendData = (bar, res) => {
         bar.save()
             .then(result => res.send(bar))
-            .catch(err => console.log(err));
+            .catch(err => {
+                
+                console.log(err);
+                
+                sendErrorMsg('Could not update attendance. Please try again.', res);
+                
+                });
     };
     
     app.post('/userIsAttending', (req, res) => {
@@ -168,7 +191,12 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
                 }
                 
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                
+                console.log(err);
+                sendErrorMsg('Could not update attendance. Please try again.', res);
+                
+            });
             
     });
     
