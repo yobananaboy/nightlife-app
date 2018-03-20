@@ -1,5 +1,4 @@
 import axios from 'axios';
-import _ from 'underscore';
 
 export const barsAreLoading = (bool) => {
     return {
@@ -50,12 +49,18 @@ export const checkUserLoggedIn = (url) => {
     };
 };
 
-export const makeSearch = (url, user, search) => {
+export const makeSearch = (url, user, inputSearch = null) => {
     return (dispatch) => {
         dispatch(barsAreLoading(true));
         
-        let data = user ?  { _id: user._id, lastSearch: search } : { _id: null, lastSearch: search };
+        let search = user.lastSearch;
         
+        if (inputSearch) {
+            search = inputSearch;
+        }
+        
+        let data = user ?  { _id: user._id, lastSearch: search, img: user.img } : { _id: null, lastSearch: search };
+
         axios.post(url, data)
             .then((res) => {
                 dispatch(barsAreLoading(false));
@@ -72,7 +77,7 @@ export const makeSearch = (url, user, search) => {
     };
 };
 
-export const userIsAttending = (user, index, barId, bars, url) => {
+export const userIsAttending = (user, barId, bars, url) => {
     return (dispatch) => {
         
         let data = { user, barId };
@@ -82,15 +87,22 @@ export const userIsAttending = (user, index, barId, bars, url) => {
                 // once we have a response with the updated bar, update the bars object returned in search
                 let updatedBar = res.data;
                 
-                bars[index].peopleGoing = updatedBar.peopleGoing;
+                // get index of updated bar
+                let index = bars.findIndex(bar => bar._id == barId);
                 
-                dispatch(barsFetchDataSuccess(bars));
+                let newBars = bars.slice();
+                // update people going in the bar
+                newBars[index].peopleGoing = updatedBar.peopleGoing;
+                
+                dispatch(barsFetchDataSuccess(newBars));
                 
             })
             .catch((err) => {
                if(err) {
+                   
                  console.log(err);
                  dispatch((barsHaveErrored(true)));   
+                 
                }
             });
     };

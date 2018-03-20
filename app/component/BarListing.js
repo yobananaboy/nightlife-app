@@ -1,6 +1,7 @@
 import React from 'react';
 
 export const BarListing = (props) => {
+    console.log(props);
     let peopleGoing = props.data.peopleGoing.map(person => {
         return <img className="float-left profile-img" src={person.img} alt="Profile picture" />;
     });

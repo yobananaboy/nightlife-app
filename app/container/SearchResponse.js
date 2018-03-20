@@ -9,12 +9,10 @@ class SearchResponse extends Component {
         e.preventDefault();
         // get id of button clicked, which corresponds to bar in array of bars
         let id = +e.target.id;
-        // get the bar
-        let bar = this.props.bars[id];
         // get the bar id
-        let barId = bar._id;
+        let barId = this.props.bars[id]._id;
         // call our action creator
-        this.props.attending(this.props.user, id, barId, this.props.bars, attendUrl);
+        this.props.attending(this.props.user, barId, this.props.bars, attendUrl);
     };
     
     render() {

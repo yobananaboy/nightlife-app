@@ -40,7 +40,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         getUser: (url) => dispatch(checkUserLoggedIn(url)),
         search: (url, user, search) => dispatch(makeSearch(url, user, search)),
-        attending: (user, index, barId, bars, url) => dispatch(userIsAttending(user, index, barId, bars, url))
+        attending: (user, barId, bars, url) => dispatch(userIsAttending(user, barId, bars, url))
     };
 };
 

@@ -78,7 +78,7 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
         getAllBars(search, req, res);
         
         if (req.body._id) {
-            Users.update({_id: req.body._id}, { $set: { _id: req.body._id, lastSearch: req.body.lastSearch }}, {upsert: true})
+            Users.update({_id: req.body._id}, { _id: req.body._id, lastSearch: req.body.lastSearch, img: req.body.img }, { upsert: true })
                 .catch(err => console.log(err));
         }
 
@@ -86,7 +86,7 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     
     
     // Facebook authentication
-    app.get('/login', passport.authenticate('facebook', {scope : ['public_profile']}));
+    app.get('/login', passport.authenticate('facebook', { scope : ['public_profile'] }));
     
     app.get('/auth/facebook/callback',
       passport.authenticate('facebook', { failureRedirect: '/', successRedirect: '/' }));
@@ -102,7 +102,7 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
         
         if (req.user != undefined) {
             
-            Users.findById(req.user._id)
+            Users.findById(req.user.id)
                 .then(user => {
                     if(user) {
                         res.send(user);
@@ -128,7 +128,7 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
     
     const saveBarAndSendData = (bar, res) => {
         bar.save()
-            .then(res => res.send(bar))
+            .then(result => res.send(bar))
             .catch(err => console.log(err));
     };
     
@@ -142,9 +142,8 @@ module.exports = function(app, yelpClient, database, passport, async, _) {
                 if (bar) {
                     // find out if user is in the array of people going and remove if they are    
                     // get index
-                    let index = _.find(bar.peopleGoing, personGoing => {
-                        return personGoing._id === user._id;
-                    });
+                    let index = bar.peopleGoing.findIndex(personGoing => personGoing._id == user._id);
+                    
                     // if not in array, push to array
                     if(index == -1) {
                         bar.peopleGoing.push(user);

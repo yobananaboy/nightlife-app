@@ -22,16 +22,9 @@ module.exports = function(passport) {
     },
         // facebook will send back the token and profile
     function(token, refreshToken, profile, done) {
-        console.log('authenticating');
-        console.log(profile);
         // asynchronous
         process.nextTick(function() {
-            /*
-            // find the user in the database based on their facebook id
-            Users.update({ _id: profile.id }, { _id: profile.id, token, img: profile.photos[0].value }, { upsert: true })
-                .catch(err => done(err))
-                .then(user => done(null, user));
-            */
+
             return done(null, profile);
         });
 
