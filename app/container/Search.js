@@ -1,21 +1,50 @@
 import React, { Component } from 'react';
-import { SearchInput } from '../component/SearchInput';
-
-const searchUrl = '/getBars';
+import emoji from 'react-easy-emoji';
 
 class Search extends Component {
-    // make search on form submit
+    constructor(props) {
+        super(props);
+        this.state = {
+            search: '',
+            err: ''
+        };
+        
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        
+    }
+
     handleSubmit = (e) => {
         e.preventDefault();
-        if(this.searchTerm.value.length > 1) {
-            this.props.search(searchUrl, this.props.user, this.searchTerm.value);   
+        if(this.state.search.length > 1) {
+            this.setState({
+                search: '',
+                err: ''
+            });
+            this.props.search('/getBars', this.props.user, this.state.search);  
+        } else {
+            this.setState({ err: 'Please enter more than one character for a search term' });
         }
     }
+    
+    handleChange = (e) => {
+        this.setState({ search: e.target.value });
+    }
+
+
     render() {
         return(
             <div className="row justify-content-center">
                 <div className="col-12 col-md-10 search">
-                    <SearchInput  searchTerm={input => this.searchTerm = input} onSubmit={this.handleSubmit} user={this.props.user} />
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="input-group">
+                            <input type="text" className="form-control" type="text" value={this.state.search} aria-label="Search" placeholder={this.props.user.lastSearch} onChange={this.handleChange} />
+                            <span className="input-group-btn">
+                                <button className="btn btn-secondary" type="submit">{emoji('Go 🔥')}</button>
+                            </span>
+                        </div>
+                    </form>
+                    <p className="error">{this.state.err}</p>
                 </div>
             </div>
         );

@@ -29,6 +29,9 @@ img {
   border-radius: 50%;
   margin-right: 5px; }
 
+.error {
+  color: #c62828; }
+
 .loader {
   font-size: 10px;
   margin: 50px auto;

@@ -37,7 +37,7 @@ export const BarListing = (props) => {
                     </div>
                     <div className="row">
                         <div className="col-12">
-                            {props.data.err}
+                            <p className="error">{props.data.err}</p>
                         </div>
                     </div>
                 </div>

@@ -24,7 +24,7 @@ class SearchResponse extends Component {
             searchResults =  <div className="loader">Loading...</div>;
         }
         if(this.props.barsHaveErrored) {
-            searchResults = <p>{this.props.barsHaveErrored}</p>;
+            searchResults = <p className="error">{this.props.barsHaveErrored}</p>;
         }
         return (
             <div className="row justify-content-center">
