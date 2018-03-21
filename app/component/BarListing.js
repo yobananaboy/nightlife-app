@@ -1,14 +1,17 @@
 import React from 'react';
 
 export const BarListing = (props) => {
-    console.log(props);
+    
     let peopleGoing = props.data.peopleGoing.map(person => {
         return <img className="float-left profile-img" src={person.img} alt="Profile picture" />;
     });
+    
     let button = <p className="float-right">{props.data.peopleGoing.length} going</p>;
+    
     if(props.user._id) {
         button = <button className="btn btn-primary float-right" id={props.index} onClick={props.onClick}>{props.data.peopleGoing.length} going</button>;
     }
+    
     return(
         <li className="list-group-item">
             <div className="row">
@@ -30,6 +33,11 @@ export const BarListing = (props) => {
                         </div>
                         <div className="col-3">
                             {button}
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-12">
+                            {props.data.err}
                         </div>
                     </div>
                 </div>

@@ -30,7 +30,7 @@ class App extends Component {
 const mapStateToProps = (state) => {
     return {
         bars: state.bars,
-        hasErrored: state.barsHaveErrored,
+        barsHaveErrored: state.barsHaveErrored,
         isLoading: state.barsAreLoading,
         user: state.user
     };

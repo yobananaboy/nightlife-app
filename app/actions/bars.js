@@ -9,10 +9,10 @@ export const barsAreLoading = (bool) => {
     };
 };
 
-export const barsHaveErrored = (bool) => {
+export const barsHaveErrored = (err = false) => {
   return {
         type: 'BARS_HAVE_ERRORED',
-        hasErrored: bool
+        err
   };
 };
 
@@ -28,6 +28,14 @@ export const barUpdated = (bar, id) => {
         type: 'BAR_UPDATED',
         bar,
         id
+    };
+};
+
+export const errorUpdatingBar = (id, err) => {
+    return {
+        type: 'ERROR_UPDATING_BAR',
+        id,
+        err
     };
 };
 
@@ -64,7 +72,9 @@ export const makeSearch = (url, user, inputSearch = null) => {
 
         axios.post(url, data)
             .then((res) => {
-                
+                if(res.data.err) {
+                    return dispatch(barsHaveErrored(res.data.err));
+                }
                 dispatch(barsAreLoading(false));
                 
                 dispatch(barsFetchDataSuccess(res.data));
@@ -77,7 +87,8 @@ export const makeSearch = (url, user, inputSearch = null) => {
                     
                     dispatch(barsAreLoading(false));
                     
-                    dispatch(barsHaveErrored(true));   
+                    dispatch(barsHaveErrored(err));
+                    
                 }
             });
     };
@@ -92,7 +103,9 @@ export const userIsAttending = (user, barId, bars, url) => {
             .then((res) => {
                 // once we have a response with the updated bar, update the bars object returned in search
                 let updatedBar = res.data;
-                
+                if(res.data.err) {
+                    return dispatch(errorUpdatingBar(barId, res.data.err));
+                }
                 dispatch(barUpdated(updatedBar, barId));
                 
             })
@@ -100,6 +113,9 @@ export const userIsAttending = (user, barId, bars, url) => {
                if(err) {
                    
                  console.log(err);
+                 dispatch(errorUpdatingBar(barId, err));
+                 
+                 
                  dispatch((barsHaveErrored(true)));   
                  
                }
