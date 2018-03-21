@@ -1,4 +1,3 @@
-var facebookUrl = 'https://nighlife-app-server-render-mattkeegan20.c9users.io/auth/facebook/callback';
 require('dotenv').config();
 
 module.exports = {
@@ -6,7 +5,7 @@ module.exports = {
     'facebookAuth': {
         'clientID'          : process.env.FB_CLIENT_ID.toString(),
         'clientSecret'      : process.env.FB_CLIENT_SECRET.toString(),
-        'callbackUrl'       : facebookUrl
+        'callbackUrl'       : process.env.FACEBOOK_URL.toString()
     }
 
 };
