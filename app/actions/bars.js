@@ -9,7 +9,7 @@ export const barsAreLoading = (bool) => {
     };
 };
 
-export const barsHaveErrored = (err = false) => {
+export const barsHaveErrored = (err) => {
   return {
         type: 'BARS_HAVE_ERRORED',
         err
@@ -80,16 +80,12 @@ export const makeSearch = (url, user, inputSearch = null) => {
                 dispatch(barsFetchDataSuccess(res.data));
                 
             })
-            .then((err) => {
-                if(err) {
-                    
-                    console.log(err);
-                    
+            .catch((err) => {
+
                     dispatch(barsAreLoading(false));
                     
                     dispatch(barsHaveErrored(err));
-                    
-                }
+
             });
     };
 };
@@ -114,9 +110,6 @@ export const userIsAttending = (user, barId, bars, url) => {
                    
                  console.log(err);
                  dispatch(errorUpdatingBar(barId, err));
-                 
-                 
-                 dispatch((barsHaveErrored(true)));   
                  
                }
                
