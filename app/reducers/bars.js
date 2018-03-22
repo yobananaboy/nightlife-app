@@ -7,7 +7,8 @@ const updateBarInBars = (bars, updatedBar, id) => {
         
         return {
             ...bar,
-            peopleGoing: updatedBar.peopleGoing
+            peopleGoing: updatedBar.peopleGoing,
+            err: false
         };
     });
     
