@@ -1,18 +1,28 @@
 const updateBarInBars = (bars, bar, id) => {
-    // get index of the bar that has been updated
-    let index = bars.findIndex(bar => bar._id == id);
     
-    // replace bar at that index with the new data
-    return bars.splice(index, 1, bar);
+    // create a copy of the bars array
+    let arr = bars.slice();
+    
+    // get index of the bar that has been updated
+    let index = arr.findIndex(bar => bar.id == id);
+    
+        // replace bar at that index with the new data
+    return arr.splice(index, 1, bar);
 };
 
 const errorInBar = (bars, id, err) => {
-    // get index of bar that has errored
-    let index = bars.findIndex(bar => bar._id == id);
-    // create new object for bar which has errored, which has err
-    let erroredBar = Object.assign({}, bars[index], { err });
-    // replace bar at that index with new data
-    return bars.splice(index, 1, erroredBar);
+    return bars.map((bar, index) => {
+        if(bar._id == id) {
+            return bar;
+        }
+        
+        return {
+            ...bar,
+            err
+        };
+        
+    });
+    
 };
 
 export const barsHaveErrored = (state = false, action) => {
