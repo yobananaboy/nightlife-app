@@ -1,18 +1,22 @@
-const updateBarInBars = (bars, bar, id) => {
+const updateBarInBars = (bars, updatedBar, id) => {
+
+    return bars.map((bar, index) => {
+        if(bar._id != id) {
+            return bar;
+        }
+        
+        return {
+            ...bar,
+            peopleGoing: updatedBar.peopleGoing
+        };
+    });
     
-    // create a copy of the bars array
-    let arr = bars.slice();
-    
-    // get index of the bar that has been updated
-    let index = arr.findIndex(bar => bar.id == id);
-    
-        // replace bar at that index with the new data
-    return arr.splice(index, 1, bar);
 };
 
 const errorInBar = (bars, id, err) => {
+    
     return bars.map((bar, index) => {
-        if(bar._id == id) {
+        if(bar._id != id) {
             return bar;
         }
         
