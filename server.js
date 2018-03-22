@@ -4,19 +4,14 @@ require('babel-register')({
 });
 
 const http = require('http');
-const path = require('path');
 
 const express = require('express');
-const yelpClient = require('./config/yelp');
 const app = express();
 const passport = require('passport');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const database = require('./config/database');
-const async = require('async');
-const _ = require('underscore');
 
-require('./config/passport')(passport);
+require('./server/config/passport')(passport);
 
 const server = http.createServer(app);
 
@@ -36,7 +31,7 @@ app.use(passport.session());
 app.set('views', './views');
 app.set('view engine', 'ejs');
 
-require('./routes')(app, yelpClient, database, passport, async, _);
+require('./server/routes/routes')(app, passport);
 
 server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
   var addr = server.address();
