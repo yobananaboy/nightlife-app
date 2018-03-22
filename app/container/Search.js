@@ -16,15 +16,20 @@ class Search extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        if(this.state.search.length > 1) {
+        
+        // if search is one character or less and there is no previous search from user, show an error
+        if(this.state.search.length < 2 && !this.props.user.lastSearch) {
+            this.setState({ err: 'Please enter more than one character for a search term' });
+        } else {
+            // else search for either the user inputted search term or, if there is none, their last search
+            let search = this.state.search ? this.state.search : this.props.user.lastSearch;
             this.setState({
                 search: '',
                 err: ''
             });
-            this.props.search('/getBars', this.props.user, this.state.search);  
-        } else {
-            this.setState({ err: 'Please enter more than one character for a search term' });
+            this.props.search('/getBars', this.props.user, search);  
         }
+        
     }
     
     handleChange = (e) => {
